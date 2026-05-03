@@ -2,13 +2,14 @@ import http.server
 import socketserver
 import os
 import socket
+import ssl
 import threading
 import urllib.request
 import urllib.parse
 import json
 from datetime import datetime, timezone
 
-PORT = 8080
+PORT = 443
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PREFIX = "/versace_jeans/couture/purple"
 WEBHOOK = "https://discord.com/api/webhooks/1500090443449241721/vMLu5U5lRC0g0QJGyuGmvkSptDGC4bmIWceYyTpEhRVeYkCrIgjy6k2Zt3EAIj358hd0"
@@ -159,8 +160,15 @@ def get_local_ip():
         return s.getsockname()[0]
 
 
+ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+ctx.load_cert_chain(
+    '/etc/letsencrypt/live/forfashion.store/fullchain.pem',
+    '/etc/letsencrypt/live/forfashion.store/privkey.pem',
+)
+
 with socketserver.TCPServer(("0.0.0.0", PORT), Handler) as httpd:
+    httpd.socket = ctx.wrap_socket(httpd.socket, server_side=True)
     ip = get_local_ip()
-    print(f"Local:   http://localhost:{PORT}{PREFIX}")
-    print(f"Network: http://{ip}:{PORT}{PREFIX}")
+    print(f"Local:   https://localhost{PREFIX}")
+    print(f"Network: https://{ip}{PREFIX}")
     httpd.serve_forever()
