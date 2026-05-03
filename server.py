@@ -166,6 +166,7 @@ ctx.load_cert_chain(
     '/etc/letsencrypt/live/forfashion.store/privkey.pem',
 )
 
+socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(("0.0.0.0", PORT), Handler) as httpd:
     httpd.socket = ctx.wrap_socket(httpd.socket, server_side=True)
     ip = get_local_ip()
